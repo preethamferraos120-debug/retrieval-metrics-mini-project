@@ -80,3 +80,27 @@ SELECT post_id FROM posts ORDER BY embedding <=> $1 LIMIT 10;
 ```
 
 Wire each into `async keywordSearch(query)` and `async semanticSearch(query)` returning ranked `post_id` lists, then run your exact same metric code. The metrics do not change, only where the ranked lists come from.
+
+## Evaluation results
+
+Run `node eval.js` to print the comparison table:
+
+```text
+| Query | Keyword rank | Semantic rank |
+|---|---|---|
+| my redis cache keeps showing old data | 8 | 1 |
+| how do I add semantic search to a table I already have | miss | 2 |
+| redis or memcached for caching | 1 | 2 |
+| why did my query get slower after I added an index | miss | 1 |
+| what does ACID actually guarantee | 2 | 1 |
+| how do I keep my postgres online while changing the schema | 6 | 3 |
+| my background jobs stop after every deploy | miss | 2 |
+| how do I let my database accept more writes per second | 4 | 1 |
+| sql or nosql for a new product | 1 | 3 |
+| why does my redis memory keep climbing | miss | 2 |
+| **Summary** | **MRR 0.30 · Recall@10 0.60** | **MRR 0.67 · Recall@10 1.00** |
+```
+
+## Interpretation
+
+Semantic search performs better overall, with an MRR of 0.67 and Recall@10 of 1.00, compared with keyword search's 0.30 and 0.60. Keyword search ranks highest for “redis or memcached for caching” and “sql or nosql for a new product”; these queries contain specific terms and direct comparisons that closely match keyword-based retrieval. Semantic search performs better on the other eight queries, especially questions phrased as problems or requests where understanding meaning matters more than matching exact words. It finds a relevant result in the top 10 for every query, while keyword search misses four. A team may still keep keyword search because it can return highly relevant results for exact terminology and comparison queries where semantic search ranks the answer lower.
